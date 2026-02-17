@@ -101,6 +101,7 @@ rem format --check
 rem run build
 rem run -D VERSION=v1.0.0 production
 rem run -D RELEASE_VERSION=v1.0.0 release
+rem run -D RELEASE_VERSION=v1.0.0 github-release
 rem build
 rem build -j 8
 ```
@@ -146,7 +147,10 @@ Use:
 
 ```bash
 ./scripts/release.sh --version v0.1.0
+rem run -D RELEASE_VERSION=v0.1.0 github-release
 ```
+
+`github-release` requires authenticated GitHub CLI (`gh auth login`).
 
 Outputs:
 

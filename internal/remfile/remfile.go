@@ -410,6 +410,14 @@ cmds = ["./scripts/release.sh --version ${RELEASE_VERSION}"]
 [task.release]
 desc = "Production + release artifacts"
 deps = ["production", "release-assets"]
+
+[task.github-release]
+desc = "Create GitHub release (tag + upload assets)"
+deps = ["release-assets"]
+cmds = [
+  "gh auth status",
+  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes",
+]
 `
 
 	const starterDocEN = `# REM
@@ -459,6 +467,7 @@ cmds = ["go test ./..."]
 - rem run <target>
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
+- rem run -D RELEASE_VERSION=v1.0.0 github-release
 - rem format
 - rem format --check
 
@@ -518,6 +527,7 @@ cmds = ["go test ./..."]
 - rem run <target>
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
+- rem run -D RELEASE_VERSION=v1.0.0 github-release
 - rem format
 - rem format --check
 

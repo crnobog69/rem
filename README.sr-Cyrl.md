@@ -99,6 +99,7 @@ rem format --check
 rem run build
 rem run -D VERSION=v1.0.0 production
 rem run -D RELEASE_VERSION=v1.0.0 release
+rem run -D RELEASE_VERSION=v1.0.0 github-release
 rem build
 rem build -j 8
 ```
@@ -140,7 +141,10 @@ go build -ldflags "-X main.version=v0.1.0 -X main.updateRepo=owner/repo" -o rem 
 
 ```bash
 ./scripts/release.sh --version v0.1.0
+rem run -D RELEASE_VERSION=v0.1.0 github-release
 ```
+
+`github-release` захтева пријављен GitHub CLI (`gh auth login`).
 
 Генерише:
 

@@ -41,3 +41,11 @@ cmds = ["./scripts/release.sh --version ${RELEASE_VERSION}"]
 [task.release]
 desc = "Production + release artifacts"
 deps = ["production", "release-assets"]
+
+[task.github-release]
+desc = "Create GitHub release (tag + upload assets)"
+deps = ["release-assets"]
+cmds = [
+  "gh auth status",
+  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes",
+]
