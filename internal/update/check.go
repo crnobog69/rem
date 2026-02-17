@@ -17,7 +17,7 @@ type latestRelease struct {
 }
 
 func CheckLatest(currentVersion, defaultRepo string) (string, error) {
-	if currentVersion == "" || currentVersion == "dev" {
+	if currentVersion == "" {
 		return "", nil
 	}
 	if os.Getenv("REM_NO_UPDATE_CHECK") == "1" {

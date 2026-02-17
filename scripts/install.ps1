@@ -1,9 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$repo = $env:REM_UPDATE_REPO
-if ([string]::IsNullOrWhiteSpace($repo)) {
-  throw "Set REM_UPDATE_REPO=owner/repo before running install script."
-}
+$repo = if ([string]::IsNullOrWhiteSpace($env:REM_UPDATE_REPO)) { "crnobog69/rem" } else { $env:REM_UPDATE_REPO }
 
 $arch = if ([Environment]::Is64BitOperatingSystem) { "amd64" } else { throw "Unsupported architecture" }
 $asset = "rem-windows-$arch.exe"
@@ -15,4 +12,3 @@ $dest = Join-Path $destDir "rem.exe"
 
 Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing
 Write-Host "Installed rem to $dest"
-

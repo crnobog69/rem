@@ -54,3 +54,4 @@ cmds = ["go test ./..."]
 - Tasks without outputs behave like phony targets
 - rem format writes canonical TOML and may rewrite layout/comments
 - rem doctor checks basic environment and Remfile health
+- Task shell follows $SHELL; set REM_SHELL=/path/to/shell to force shell

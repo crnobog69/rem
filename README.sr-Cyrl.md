@@ -1,4 +1,5 @@
 # rem
+Језик: [English](README.md) | Српски (ћирилица)
 
 `rem` је приватни build алат у Go-у, са `Remfile` форматом у TOML-у.
 Практична алтернатива за `make`/`cmake`, са фокусом на брз локални рад.
@@ -11,6 +12,37 @@
 - Извршавање dependency графа са паралелизмом
 - Up-to-date провера преко `inputs`/`outputs`
 - Ажурирање преко GitHub Releases
+
+## Инсталација (GitHub Releases)
+
+Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+iwr https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.ps1 -UseBasicParsing | iex
+```
+
+Опциони override репо-а (fork/приватни build):
+
+```bash
+REM_UPDATE_REPO=owner/repo curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.sh | bash
+```
+
+```powershell
+$env:REM_UPDATE_REPO = "owner/repo"; iwr https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.ps1 -UseBasicParsing | iex
+```
+
+Путање после инсталације:
+
+- Linux: `~/.local/bin/rem`
+- Windows: `%USERPROFILE%\\bin\\rem.exe`
+
+Напомена: тренутно се release артефакти објављују за Linux и Windows.
 
 ## Инсталација из сорса
 
@@ -71,6 +103,7 @@ rem build -j 8
 `rem format` уписује канонски TOML формат и не чува коментаре.
 `rem init` креира `Remfile`, `REM.md` и `REM.sr-Cyrl.md`.
 CLI излаз користи боје на TTY; искључивање: `NO_COLOR=1`.
+Task shell прати `$SHELL`; постави `REM_SHELL=/path/to/shell` ако желиш форсиран shell.
 
 ## VS Code екстензија
 
@@ -90,8 +123,10 @@ CLI излаз користи боје на TTY; искључивање: `NO_COL
 
 ## Провера нове верзије (GitHub Releases)
 
+- проверава се при сваком покретању `rem` команде
 - Искључивање: `REM_NO_UPDATE_CHECK=1`
-- Репо преко env: `REM_UPDATE_REPO=owner/repo`
+- Подразумевани репо: `crnobog69/rem`
+- Override преко env: `REM_UPDATE_REPO=owner/repo`
 - Или compile-time:
 
 ```bash
@@ -111,3 +146,11 @@ go build -ldflags "-X main.version=v0.1.0 -X main.updateRepo=owner/repo" -o rem 
 - `dist/rem-windows-amd64.exe`
 - `dist/rem-windows-arm64.exe`
 - `dist/checksums.txt`
+
+## Лиценца
+
+Apache-2.0. Погледајте [`LICENSE`](LICENSE).
+
+## Енглеска документација
+
+Погледајте [`README.md`](README.md).

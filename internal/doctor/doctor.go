@@ -46,7 +46,7 @@ func (r Report) Counts() (ok int, warn int, fail int) {
 	return ok, warn, fail
 }
 
-func Run(remVersion string, remfilePath string) Report {
+func Run(remVersion string, remfilePath string, defaultUpdateRepo string) Report {
 	out := Report{Checks: make([]Check, 0, 8)}
 
 	out.Checks = append(out.Checks, Check{
@@ -75,7 +75,7 @@ func Run(remVersion string, remfilePath string) Report {
 	out.Checks = append(out.Checks, checkShell())
 
 	out.Checks = append(out.Checks, checkRemfile(remfilePath))
-	out.Checks = append(out.Checks, checkUpdateRepo())
+	out.Checks = append(out.Checks, checkUpdateRepo(defaultUpdateRepo))
 
 	return out
 }
@@ -148,13 +148,28 @@ func checkRemfile(path string) Check {
 	}
 }
 
-func checkUpdateRepo() Check {
+func checkUpdateRepo(defaultRepo string) Check {
 	repo := strings.TrimSpace(os.Getenv("REM_UPDATE_REPO"))
 	if repo == "" {
+		repo = strings.TrimSpace(defaultRepo)
+		if repo != "" {
+			if strings.Count(repo, "/") != 1 {
+				return Check{
+					Severity: SeverityWarn,
+					Name:     "update",
+					Detail:   fmt.Sprintf("default update repo=%q should look like owner/repo", repo),
+				}
+			}
+			return Check{
+				Severity: SeverityOK,
+				Name:     "update",
+				Detail:   fmt.Sprintf("using default update repo=%s", repo),
+			}
+		}
 		return Check{
 			Severity: SeverityWarn,
 			Name:     "update",
-			Detail:   "REM_UPDATE_REPO is empty",
+			Detail:   "update repo is empty",
 		}
 	}
 	if strings.Count(repo, "/") != 1 {

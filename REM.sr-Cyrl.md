@@ -54,3 +54,4 @@ cmds = ["go test ./..."]
 - Task без outputs се понаша као phony target
 - rem format пише канонски TOML и може да промени распоред/коментаре
 - rem doctor проверава основно окружење и здравље Remfile-а
+- Task shell прати $SHELL; постави REM_SHELL=/path/to/shell за форсирање shell-а

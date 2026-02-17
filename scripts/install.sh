@@ -6,16 +6,7 @@ if ! command -v curl >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v tar >/dev/null 2>&1; then
-  echo "tar is required" >&2
-  exit 1
-fi
-
-REPO="${REM_UPDATE_REPO:-}"
-if [[ -z "${REPO}" ]]; then
-  echo "Set REM_UPDATE_REPO=owner/repo before running install script." >&2
-  exit 1
-fi
+REPO="${REM_UPDATE_REPO:-crnobog69/rem}"
 
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
@@ -46,4 +37,3 @@ curl -fsSL "${URL}" -o "${DEST}"
 chmod +x "${DEST}"
 
 echo "Installed rem to ${DEST}"
-

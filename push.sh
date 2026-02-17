@@ -3,7 +3,7 @@ set -euo pipefail
 
 COMMIT_MSG='❄️'
 BRANCH='master'
-REMOTES=('gitcrn')
+REMOTES=('gitcrn' 'origin')
 
 git add .
 if git diff --cached --quiet; then

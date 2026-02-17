@@ -1,4 +1,5 @@
 # rem
+Language: English | [Српски (ћирилица)](README.sr-Cyrl.md)
 
 `rem` is a private build tool in Go, with a `Remfile` build format in TOML.
 It is designed as a practical alternative to `make`/`cmake` for fast local workflows.
@@ -11,6 +12,37 @@ It is designed as a practical alternative to `make`/`cmake` for fast local workf
 - Dependency graph execution with parallel jobs
 - Up-to-date checks via `inputs`/`outputs`
 - Release/update workflow via GitHub Releases
+
+## Install (GitHub Releases)
+
+Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+iwr https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.ps1 -UseBasicParsing | iex
+```
+
+Optional override repo (for forks/private builds):
+
+```bash
+REM_UPDATE_REPO=owner/repo curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.sh | bash
+```
+
+```powershell
+$env:REM_UPDATE_REPO = "owner/repo"; iwr https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.ps1 -UseBasicParsing | iex
+```
+
+Installed paths:
+
+- Linux: `~/.local/bin/rem`
+- Windows: `%USERPROFILE%\\bin\\rem.exe`
+
+Note: current release assets are published for Linux and Windows.
 
 ## Install from source
 
@@ -73,6 +105,7 @@ rem build -j 8
 `rem format` writes canonical TOML and does not preserve comments.
 `rem init` creates `Remfile`, `REM.md`, and `REM.sr-Cyrl.md`.
 CLI output uses colors on TTY; disable with `NO_COLOR=1`.
+Task shell follows `$SHELL`; set `REM_SHELL=/path/to/shell` to force a specific shell.
 
 ## VS Code extension
 
@@ -94,8 +127,10 @@ Your provided `Makefile` translation is included at:
 
 `rem` can check latest release metadata from GitHub:
 
+- checked on every `rem` command startup
 - disabled with `REM_NO_UPDATE_CHECK=1`
-- repo from `REM_UPDATE_REPO=owner/repo`
+- default repo is `crnobog69/rem`
+- override repo with `REM_UPDATE_REPO=owner/repo`
 - or compile-time value via:
 
 ```bash
@@ -118,6 +153,10 @@ Outputs:
 - `dist/rem-windows-arm64.exe`
 - `dist/checksums.txt`
 
-## Serbian Cyrillic docs
+## License
 
-See `README.sr-Cyrl.md`.
+Apache-2.0. See [`LICENSE`](LICENSE).
+
+## Serbian docs
+
+See [`README.sr-Cyrl.md`](README.sr-Cyrl.md).

@@ -468,6 +468,7 @@ cmds = ["go test ./..."]
 - Tasks without outputs behave like phony targets
 - rem format writes canonical TOML and may rewrite layout/comments
 - rem doctor checks basic environment and Remfile health
+- Task shell follows $SHELL; set REM_SHELL=/path/to/shell to force shell
 `
 
 	const starterDocSRCyrl = `# REM
@@ -526,6 +527,7 @@ cmds = ["go test ./..."]
 - Task без outputs се понаша као phony target
 - rem format пише канонски TOML и може да промени распоред/коментаре
 - rem doctor проверава основно окружење и здравље Remfile-а
+- Task shell прати $SHELL; постави REM_SHELL=/path/to/shell за форсирање shell-а
 `
 
 	if err := os.WriteFile(path, []byte(starter), 0o644); err != nil {
