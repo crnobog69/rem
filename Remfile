@@ -1,0 +1,43 @@
+default = "build"
+
+[vars]
+APP_NAME = "rem"
+VERSION = "dev"
+PROD_LDFLAGS = "-s -w -X main.version=${VERSION}"
+RELEASE_VERSION = "${VERSION}"
+
+[task.gen]
+desc = "Generate files"
+cmds = ["go generate ./..."]
+
+[task.build]
+desc = "Build rem binary"
+deps = ["gen"]
+inputs = ["cmd/rem/main.go", "internal/*/*.go", "go.mod"]
+outputs = ["bin/${APP_NAME}"]
+cmds = [
+  "mkdir -p bin",
+  "go build -ldflags \"-X main.version=${VERSION}\" -o bin/${APP_NAME} ./cmd/rem",
+]
+
+[task.test]
+desc = "Run tests"
+cmds = ["go test ./..."]
+
+[task.production]
+desc = "Build production binary"
+deps = ["test"]
+outputs = ["bin/${APP_NAME}-prod"]
+cmds = [
+  "mkdir -p bin",
+  "go build -trimpath -ldflags \"${PROD_LDFLAGS}\" -o bin/${APP_NAME}-prod ./cmd/rem",
+]
+
+[task.release-assets]
+desc = "Build cross-platform release artifacts"
+deps = ["test"]
+cmds = ["./scripts/release.sh --version ${RELEASE_VERSION}"]
+
+[task.release]
+desc = "Production + release artifacts"
+deps = ["production", "release-assets"]

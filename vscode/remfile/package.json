@@ -1,0 +1,73 @@
+{
+  "name": "remfile-language",
+  "displayName": "Remfile Language",
+  "description": "Syntax highlighting and diagnostics for Remfile TOML format.",
+  "version": "0.0.1",
+  "publisher": "rem",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crnobog69/rem.git"
+  },
+  "homepage": "https://github.com/crnobog69/rem",
+  "bugs": {
+    "url": "https://github.com/crnobog69/rem/issues"
+  },
+  "files": [
+    "extension.js",
+    "language-configuration.json",
+    "snippets/**",
+    "syntaxes/**",
+    "README.md",
+    "package.json"
+  ],
+  "main": "./extension.js",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onLanguage:remfile",
+    "workspaceContains:Remfile"
+  ],
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "remfile",
+        "aliases": [
+          "Remfile",
+          "remfile"
+        ],
+        "extensions": [],
+        "filenames": [
+          "Remfile"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "remfile",
+        "scopeName": "source.remfile",
+        "path": "./syntaxes/remfile.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "remfile",
+        "path": "./snippets/remfile.code-snippets"
+      }
+    ],
+    "configuration": {
+      "title": "Remfile",
+      "properties": {
+        "remfile.diagnostics.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable lightweight Remfile diagnostics."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+default = "build"
+
+[vars]
+APP_NAME = "gitcrn"
+VERSION = "${VERSION:-dev}"
+LDFLAGS = "-X main.version=${VERSION}"
+
+[task.build]
+desc = "Build local binary"
+cmds = ["mkdir -p bin", "go build -ldflags \"${LDFLAGS}\" -o bin/${APP_NAME} ./cmd/gitcrn"]
+
+[task.test]
+desc = "Run tests"
+cmds = ["go test ./..."]
+
+[task.build-linux]
+desc = "Build Linux amd64 release binary"
+cmds = ["mkdir -p dist", "GOOS=linux GOARCH=amd64 go build -ldflags \"${LDFLAGS}\" -o dist/${APP_NAME}-linux-amd64 ./cmd/gitcrn"]
+
+[task.build-windows]
+desc = "Build Windows amd64 release binary"
+cmds = ["mkdir -p dist", "GOOS=windows GOARCH=amd64 go build -ldflags \"${LDFLAGS}\" -o dist/${APP_NAME}-windows-amd64.exe ./cmd/gitcrn"]
+
+[task.release-assets]
+desc = "Build release artifacts via script"
+cmds = ["./scripts/release.sh --version ${VERSION}"]
+
+[task.install]
+desc = "Install latest release"
+cmds = ["./scripts/install.sh"]
+
+[task.update]
+desc = "Update installed binary"
+cmds = ["./scripts/update.sh"]
+
+[task.clean]
+desc = "Remove local build outputs"
+cmds = ["rm -rf bin dist"]
+
+[task.clean-go-cache]
+desc = "Clean go build and module cache"
+cmds = ["go clean -cache -modcache"]
+
+[task.clean-all]
+desc = "clean + clean-go-cache"
+deps = ["clean", "clean-go-cache"]

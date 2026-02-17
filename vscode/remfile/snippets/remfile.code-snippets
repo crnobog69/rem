@@ -1,0 +1,29 @@
+{
+  "task block": {
+    "prefix": "task",
+    "body": [
+      "[task.${1:name}]",
+      "desc = \"${2:Description}\"",
+      "deps = [\"${3:dep1}\"]",
+      "inputs = [\"${4:src/**/*.go}\"]",
+      "outputs = [\"${5:bin/${1:name}}\"]",
+      "cmds = [\"${6:echo build}\"]"
+    ],
+    "description": "Insert a TOML task block"
+  },
+  "default line": {
+    "prefix": "default",
+    "body": [
+      "default = \"${1:build}\""
+    ],
+    "description": "Set default Remfile target"
+  },
+  "vars table": {
+    "prefix": "var",
+    "body": [
+      "[vars]",
+      "${1:APP_NAME} = \"${2:rem}\""
+    ],
+    "description": "Insert vars table"
+  }
+}
