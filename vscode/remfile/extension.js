@@ -46,18 +46,7 @@ function isRemfileDocument(doc) {
 
 function validate(doc) {
   const lines = doc.getText().split(/\r?\n/);
-  const toml = validateToml(doc, lines);
-  if (toml.parsed) {
-    return toml.diagnostics;
-  }
-  const legacy = validateLegacy(doc, lines);
-  if (legacy.parsed) {
-    return legacy.diagnostics;
-  }
-  if (toml.diagnostics.length <= legacy.diagnostics.length) {
-    return toml.diagnostics;
-  }
-  return legacy.diagnostics;
+  return validateToml(doc, lines).diagnostics;
 }
 
 function validateToml(doc, lines) {
@@ -166,130 +155,6 @@ function validateToml(doc, lines) {
       if ((key === "cmd" || key === "cmds") && value === "") {
         diagnostics.push(diag(doc, i, raw.length, "empty command value"));
       }
-    }
-  }
-
-  if (!parsed) {
-    return { parsed: false, diagnostics };
-  }
-
-  if (tasks.size === 0) {
-    diagnostics.push(diag(doc, 0, 0, "Remfile has no tasks"));
-    return { parsed: true, diagnostics };
-  }
-
-  if (defaultTarget && !tasks.has(defaultTarget)) {
-    diagnostics.push(
-      diag(doc, 0, 0, `default target "${defaultTarget}" does not match any defined task`)
-    );
-  }
-
-  for (const [taskName, deps] of taskDeps.entries()) {
-    deps.forEach((dep) => {
-      if (!dep) {
-        return;
-      }
-      if (!tasks.has(dep) && !/\$\{.+\}/.test(dep)) {
-        const taskLine = tasks.get(taskName) || 0;
-        diagnostics.push(
-          diag(
-            doc,
-            taskLine,
-            lines[taskLine] ? lines[taskLine].length : 0,
-            `task "${taskName}" depends on undefined task "${dep}"`
-          )
-        );
-      }
-    });
-  }
-
-  return { parsed: true, diagnostics };
-}
-
-function validateLegacy(doc, lines) {
-  const diagnostics = [];
-  const tasks = new Map();
-  const vars = new Set();
-  const taskDeps = new Map();
-  let defaultTarget = "";
-  let currentTask = null;
-  let parsed = false;
-
-  for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i];
-    const line = raw.trim();
-    if (!line || line.startsWith("#")) {
-      continue;
-    }
-
-    const topLevel = !startsWithIndent(raw);
-    if (topLevel) {
-      currentTask = null;
-      if (line.startsWith("default ")) {
-        parsed = true;
-        defaultTarget = line.slice("default ".length).trim();
-        if (!defaultTarget) {
-          diagnostics.push(diag(doc, i, raw.length, "default target name is missing"));
-        }
-        continue;
-      }
-
-      const varMatch = line.match(/^var\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/);
-      if (varMatch) {
-        parsed = true;
-        const name = varMatch[1];
-        if (vars.has(name)) {
-          diagnostics.push(diag(doc, i, raw.length, `duplicate var "${name}"`));
-        } else {
-          vars.add(name);
-        }
-        continue;
-      }
-
-      const taskMatch = line.match(/^task\s+([A-Za-z0-9_.-]+)\s*:\s*$/);
-      if (taskMatch) {
-        parsed = true;
-        currentTask = taskMatch[1];
-        if (tasks.has(currentTask)) {
-          diagnostics.push(diag(doc, i, raw.length, `duplicate task "${currentTask}"`));
-        } else {
-          tasks.set(currentTask, i);
-          taskDeps.set(currentTask, []);
-        }
-        continue;
-      }
-
-      diagnostics.push(
-        diag(doc, i, raw.length, "invalid top-level statement (expected var/default/task)")
-      );
-      continue;
-    }
-
-    if (!currentTask) {
-      diagnostics.push(diag(doc, i, raw.length, "indented line outside of task"));
-      continue;
-    }
-
-    const kv = line.match(/^(desc|deps|inputs|outputs|cmd|run|dir)\s*=\s*(.*)$/);
-    if (!kv) {
-      diagnostics.push(
-        diag(
-          doc,
-          i,
-          raw.length,
-          'invalid task field (expected desc/deps/inputs/outputs/cmd/run/dir = ...)'
-        )
-      );
-      continue;
-    }
-
-    const key = kv[1];
-    const value = kv[2].trim();
-    if (!value && (key === "cmd" || key === "run")) {
-      diagnostics.push(diag(doc, i, raw.length, "empty command value"));
-    }
-    if (key === "deps") {
-      taskDeps.set(currentTask, splitList(value));
     }
   }
 
@@ -454,10 +319,6 @@ function bracketDelta(s) {
     }
   }
   return delta;
-}
-
-function startsWithIndent(s) {
-  return s.startsWith(" ") || s.startsWith("\t");
 }
 
 function diag(doc, line, endChar, message) {

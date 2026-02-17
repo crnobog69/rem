@@ -2,36 +2,16 @@
   "name": "Remfile",
   "scopeName": "source.remfile",
   "patterns": [
-    {
-      "include": "#comments"
-    },
-    {
-      "include": "#tomlSection"
-    },
-    {
-      "include": "#tomlAssign"
-    },
-    {
-      "include": "#defaultStmt"
-    },
-    {
-      "include": "#varStmt"
-    },
-    {
-      "include": "#taskDecl"
-    },
-    {
-      "include": "#fieldAssign"
-    },
-    {
-      "include": "#numbers"
-    },
-    {
-      "include": "#strings"
-    },
-    {
-      "include": "#shellVars"
-    }
+    { "include": "#comments" },
+    { "include": "#sectionVars" },
+    { "include": "#sectionTask" },
+    { "include": "#assignDefault" },
+    { "include": "#assignTaskField" },
+    { "include": "#assignVar" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#bools" },
+    { "include": "#shellVars" }
   ],
   "repository": {
     "comments": {
@@ -42,137 +22,69 @@
         }
       ]
     },
-    "tomlSection": {
+    "sectionVars": {
       "patterns": [
         {
           "name": "meta.section.remfile",
-          "match": "^(\\s*)\\[(vars)\\]\\s*$",
+          "match": "^(\\s*)(\\[)(vars)(\\])(\\s*)$",
           "captures": {
-            "2": {
-              "name": "keyword.control.remfile"
-            }
-          }
-        },
-        {
-          "name": "meta.section.remfile",
-          "match": "^(\\s*)\\[(task)(\\.)([A-Za-z0-9_.-]+)\\]\\s*$",
-          "captures": {
-            "2": {
-              "name": "keyword.control.remfile"
-            },
-            "4": {
-              "name": "entity.name.function.remfile"
-            }
+            "2": { "name": "punctuation.definition.brackets.remfile" },
+            "3": { "name": "keyword.control.remfile" },
+            "4": { "name": "punctuation.definition.brackets.remfile" }
           }
         }
       ]
     },
-    "tomlAssign": {
+    "sectionTask": {
       "patterns": [
         {
-          "name": "meta.assignment.toml.remfile",
-          "match": "^(\\s*)(default|desc|deps|inputs|outputs|cmds|cmd|dir)(\\s*=\\s*)(.*)$",
+          "name": "meta.section.remfile",
+          "match": "^(\\s*)(\\[)(task)(\\.)([A-Za-z0-9_.-]+)(\\])(\\s*)$",
           "captures": {
-            "2": {
-              "name": "keyword.control.remfile"
-            },
-            "3": {
-              "name": "keyword.operator.assignment.remfile"
-            },
-            "4": {
-              "name": "string.unquoted.remfile"
-            }
+            "2": { "name": "punctuation.definition.brackets.remfile" },
+            "3": { "name": "keyword.control.remfile" },
+            "4": { "name": "punctuation.separator.dot.remfile" },
+            "5": { "name": "entity.name.function.remfile" },
+            "6": { "name": "punctuation.definition.brackets.remfile" }
           }
-        },
+        }
+      ]
+    },
+    "assignDefault": {
+      "patterns": [
         {
-          "name": "meta.assignment.toml.remfile",
+          "name": "meta.assignment.remfile",
+          "match": "^(\\s*)(default)(\\s*=\\s*)(.*)$",
+          "captures": {
+            "2": { "name": "keyword.control.remfile" },
+            "3": { "name": "keyword.operator.assignment.remfile" },
+            "4": { "name": "string.unquoted.remfile" }
+          }
+        }
+      ]
+    },
+    "assignTaskField": {
+      "patterns": [
+        {
+          "name": "meta.assignment.remfile",
+          "match": "^(\\s*)(desc|deps|inputs|outputs|cmd|cmds|dir)(\\s*=\\s*)(.*)$",
+          "captures": {
+            "2": { "name": "support.type.property-name.remfile" },
+            "3": { "name": "keyword.operator.assignment.remfile" },
+            "4": { "name": "string.unquoted.remfile" }
+          }
+        }
+      ]
+    },
+    "assignVar": {
+      "patterns": [
+        {
+          "name": "meta.assignment.remfile",
           "match": "^(\\s*)([A-Za-z_][A-Za-z0-9_]*)(\\s*=\\s*)(.*)$",
           "captures": {
-            "2": {
-              "name": "variable.other.readwrite.remfile"
-            },
-            "3": {
-              "name": "keyword.operator.assignment.remfile"
-            },
-            "4": {
-              "name": "string.unquoted.remfile"
-            }
-          }
-        }
-      ]
-    },
-    "defaultStmt": {
-      "patterns": [
-        {
-          "name": "meta.default.remfile",
-          "match": "^(\\s*)(default)(\\s+)([A-Za-z0-9_.-]+)\\s*$",
-          "captures": {
-            "2": {
-              "name": "keyword.control.remfile"
-            },
-            "4": {
-              "name": "entity.name.function.remfile"
-            }
-          }
-        }
-      ]
-    },
-    "varStmt": {
-      "patterns": [
-        {
-          "name": "meta.var.declaration.remfile",
-          "match": "^(\\s*)(var)(\\s+)([A-Za-z_][A-Za-z0-9_]*)(\\s*=\\s*)(.*)$",
-          "captures": {
-            "2": {
-              "name": "storage.type.remfile"
-            },
-            "4": {
-              "name": "variable.other.readwrite.remfile"
-            },
-            "5": {
-              "name": "keyword.operator.assignment.remfile"
-            },
-            "6": {
-              "name": "string.unquoted.remfile"
-            }
-          }
-        }
-      ]
-    },
-    "taskDecl": {
-      "patterns": [
-        {
-          "name": "meta.task.declaration.remfile",
-          "match": "^(\\s*)(task)(\\s+)([A-Za-z0-9_.-]+)(:)\\s*$",
-          "captures": {
-            "2": {
-              "name": "keyword.control.remfile"
-            },
-            "4": {
-              "name": "entity.name.function.remfile"
-            },
-            "5": {
-              "name": "punctuation.separator.key-value.remfile"
-            }
-          }
-        }
-      ]
-    },
-    "fieldAssign": {
-      "patterns": [
-        {
-          "name": "meta.field.assignment.remfile",
-          "match": "^(\\s*)(desc|deps|inputs|outputs|cmd|run|dir)(\\s*=\\s*)(.*)$",
-          "captures": {
-            "2": {
-              "name": "variable.other.property.remfile"
-            },
-            "3": {
-              "name": "keyword.operator.assignment.remfile"
-            },
-            "4": {
-              "name": "string.unquoted.remfile"
-            }
+            "2": { "name": "variable.other.constant.remfile" },
+            "3": { "name": "keyword.operator.assignment.remfile" },
+            "4": { "name": "string.unquoted.remfile" }
           }
         }
       ]
@@ -182,6 +94,14 @@
         {
           "name": "constant.numeric.remfile",
           "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "bools": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.remfile",
+          "match": "\\b(true|false)\\b"
         }
       ]
     },
@@ -195,6 +115,9 @@
             {
               "name": "constant.character.escape.remfile",
               "match": "\\\\."
+            },
+            {
+              "include": "#shellVars"
             }
           ]
         },

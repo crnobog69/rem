@@ -6,7 +6,7 @@ Language support for `Remfile`:
 - syntax highlighting (TOML)
 - comment and bracket behavior
 - starter snippets
-- lightweight diagnostics:
+- lightweight TOML diagnostics
 - duplicate task names
 - invalid top-level/task statements
 - missing/invalid default target

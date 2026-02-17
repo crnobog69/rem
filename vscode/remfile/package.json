@@ -2,7 +2,8 @@
   "name": "remfile-language",
   "displayName": "Remfile Language",
   "description": "Syntax highlighting and diagnostics for Remfile TOML format.",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "license": "Apache-2.0",
   "publisher": "rem",
   "repository": {
     "type": "git",
