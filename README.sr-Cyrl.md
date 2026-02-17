@@ -18,23 +18,23 @@
 Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/master/scripts/install.sh | bash
 ```
 
 Windows (PowerShell):
 
 ```powershell
-iwr https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.ps1 -UseBasicParsing | iex
+iwr https://raw.githubusercontent.com/crnobog69/rem/master/scripts/install.ps1 -UseBasicParsing | iex
 ```
 
 Опциони override репо-а (fork/приватни build):
 
 ```bash
-REM_UPDATE_REPO=owner/repo curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.sh | bash
+REM_UPDATE_REPO=owner/repo curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/master/scripts/install.sh | bash
 ```
 
 ```powershell
-$env:REM_UPDATE_REPO = "owner/repo"; iwr https://raw.githubusercontent.com/crnobog69/rem/main/scripts/install.ps1 -UseBasicParsing | iex
+$env:REM_UPDATE_REPO = "owner/repo"; iwr https://raw.githubusercontent.com/crnobog69/rem/master/scripts/install.ps1 -UseBasicParsing | iex
 ```
 
 Путање после инсталације:
