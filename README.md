@@ -27,6 +27,9 @@ Windows (PowerShell):
 iwr https://raw.githubusercontent.com/crnobog69/rem/master/scripts/install.ps1 -UseBasicParsing | iex
 ```
 
+The installer adds `%USERPROFILE%\\bin` to user `PATH` automatically.
+If `rem` is still not recognized, open a new terminal.
+
 Optional override repo (for forks/private builds):
 
 ```bash

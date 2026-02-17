@@ -27,6 +27,9 @@ Windows (PowerShell):
 iwr https://raw.githubusercontent.com/crnobog69/rem/master/scripts/install.ps1 -UseBasicParsing | iex
 ```
 
+Инсталер аутоматски додаје `%USERPROFILE%\\bin` у user `PATH`.
+Ако `rem` и даље није препознат, отвори нови терминал.
+
 Опциони override репо-а (fork/приватни build):
 
 ```bash
