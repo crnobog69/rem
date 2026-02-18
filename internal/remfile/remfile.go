@@ -362,10 +362,7 @@ func (f *File) ApplyOverrides(overrides map[string]string) error {
 	return nil
 }
 
-func WriteStarter(path string, force bool) error {
-	if _, err := os.Stat(path); err == nil && !force {
-		return fmt.Errorf("%s already exists (use --force)", path)
-	}
+func WriteStarter(path string) error {
 
 	const starter = `default = "build"
 
@@ -376,6 +373,7 @@ PROD_LDFLAGS = "-s -w -X main.version=${VERSION}"
 RELEASE_VERSION = "${VERSION}"
 UPDATE_REPO = "crnobog69/rem"
 UPDATE_REF = "master"
+RELEASE_ALLOW_DIRTY = "0"
 
 [task.gen]
 desc = "Generate files"
@@ -417,10 +415,10 @@ deps = ["production", "release-assets"]
 desc = "Validate release preconditions"
 cmds = [
   "gh auth status",
-  "git diff --quiet",
-  "git diff --cached --quiet",
-  "git ls-remote --exit-code --tags origin \"refs/tags/${RELEASE_VERSION}\" >/dev/null 2>&1 && { echo \"remote tag ${RELEASE_VERSION} already exists\"; exit 1; } || true",
-  "gh release view ${RELEASE_VERSION} >/dev/null 2>&1 && { echo \"release ${RELEASE_VERSION} already exists\"; exit 1; } || true",
+  "if [ \"${RELEASE_ALLOW_DIRTY}\" != \"1\" ]; then git diff --quiet || { echo \"working tree has unstaged tracked changes (commit/stash or use -D RELEASE_ALLOW_DIRTY=1)\"; exit 1; }; fi",
+  "if [ \"${RELEASE_ALLOW_DIRTY}\" != \"1\" ]; then git diff --cached --quiet || { echo \"working tree has staged changes (commit/stash or use -D RELEASE_ALLOW_DIRTY=1)\"; exit 1; }; fi",
+  "if git ls-remote --exit-code --tags origin \"refs/tags/${RELEASE_VERSION}\" >/dev/null 2>&1; then echo \"remote tag ${RELEASE_VERSION} already exists\"; exit 1; fi",
+  "if gh release view ${RELEASE_VERSION} >/dev/null 2>&1; then echo \"release ${RELEASE_VERSION} already exists\"; exit 1; fi",
 ]
 
 [task.github-release]
@@ -428,7 +426,8 @@ desc = "Create GitHub release (tag + upload assets)"
 deps = ["release-preflight", "release-assets"]
 cmds = [
   "gh auth status",
-  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes --notes \"Update (Linux): curl -fsSL https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.sh | bash ; Update (Windows): iwr https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.ps1 -UseBasicParsing | iex\"",
+  "printf '%s\n' '## Update' '' '### Linux' '~~~bash' 'curl -fsSL https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.sh | bash' '~~~' '' '### Windows (PowerShell)' '~~~powershell' 'iwr https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.ps1 -UseBasicParsing | iex' '~~~' > dist/release-notes.md",
+  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes --notes-file dist/release-notes.md",
 ]
 `
 
@@ -471,18 +470,21 @@ cmds = ["go test ./..."]
 
 ## Commands
 
+Daily:
 - rem init
-- rem doctor
 - rem list -D VERSION=v0.1.0
-- rem graph -D APP_NAME=rem
 - rem build [target]
 - rem run <target>
+- rem format
+- rem format --check
+
+Optional release flow:
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
 - rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 - rem run -D RELEASE_VERSION=v1.0.0 github-release
-- rem format
-- rem format --check
+- rem doctor
+- rem graph -D APP_NAME=rem
 
 ## Notes
 
@@ -491,6 +493,7 @@ cmds = ["go test ./..."]
 - rem format writes canonical TOML and may rewrite layout/comments
 - rem doctor checks basic environment and Remfile health
 - Task shell follows $SHELL; set REM_SHELL=/path/to/shell to force shell
+- release-preflight expects clean tracked git changes; bypass with -D RELEASE_ALLOW_DIRTY=1
 `
 
 	const starterDocSRCyrl = `# REM
@@ -532,18 +535,21 @@ cmds = ["go test ./..."]
 
 ## Команде
 
+Дневно:
 - rem init
-- rem doctor
 - rem list -D VERSION=v0.1.0
-- rem graph -D APP_NAME=rem
 - rem build [target]
 - rem run <target>
+- rem format
+- rem format --check
+
+Опциони release ток:
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
 - rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 - rem run -D RELEASE_VERSION=v1.0.0 github-release
-- rem format
-- rem format --check
+- rem doctor
+- rem graph -D APP_NAME=rem
 
 ## Напомене
 
@@ -552,26 +558,29 @@ cmds = ["go test ./..."]
 - rem format пише канонски TOML и може да промени распоред/коментаре
 - rem doctor проверава основно окружење и здравље Remfile-а
 - Task shell прати $SHELL; постави REM_SHELL=/path/to/shell за форсирање shell-а
+- release-preflight очекује чисте tracked git измене; bypass: -D RELEASE_ALLOW_DIRTY=1
 `
 
-	if err := os.WriteFile(path, []byte(starter), 0o644); err != nil {
-		return err
+	if _, err := os.Stat(path); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		if err := os.WriteFile(path, []byte(starter), 0o644); err != nil {
+			return err
+		}
 	}
 
 	baseDir := filepath.Dir(path)
-	if err := writeDocFile(filepath.Join(baseDir, "REM.md"), starterDocEN, force); err != nil {
+	if err := writeDocFile(filepath.Join(baseDir, "REM.md"), starterDocEN); err != nil {
 		return err
 	}
-	if err := writeDocFile(filepath.Join(baseDir, "REM.sr-Cyrl.md"), starterDocSRCyrl, force); err != nil {
+	if err := writeDocFile(filepath.Join(baseDir, "REM.sr-Cyrl.md"), starterDocSRCyrl); err != nil {
 		return err
 	}
 	return nil
 }
 
-func writeDocFile(path string, content string, force bool) error {
-	if _, err := os.Stat(path); err == nil && !force {
-		return nil
-	}
+func writeDocFile(path string, content string) error {
 	return os.WriteFile(path, []byte(content), 0o644)
 }
 

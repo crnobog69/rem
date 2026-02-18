@@ -7,6 +7,7 @@ PROD_LDFLAGS = "-s -w -X main.version=${VERSION}"
 RELEASE_VERSION = "${VERSION}"
 UPDATE_REPO = "crnobog69/rem"
 UPDATE_REF = "master"
+RELEASE_ALLOW_DIRTY = "0"
 
 [task.gen]
 desc = "Generate files"
@@ -17,10 +18,7 @@ desc = "Build rem binary"
 deps = ["gen"]
 inputs = ["cmd/rem/main.go", "internal/*/*.go", "go.mod"]
 outputs = ["bin/${APP_NAME}"]
-cmds = [
-  "mkdir -p bin",
-  "go build -ldflags \"-X main.version=${VERSION}\" -o bin/${APP_NAME} ./cmd/rem",
-]
+cmds = ["mkdir -p bin", "go build -ldflags \"-X main.version=${VERSION}\" -o bin/${APP_NAME} ./cmd/rem"]
 
 [task.test]
 desc = "Run tests"
@@ -30,10 +28,7 @@ cmds = ["go test ./..."]
 desc = "Build production binary"
 deps = ["test"]
 outputs = ["bin/${APP_NAME}-prod"]
-cmds = [
-  "mkdir -p bin",
-  "go build -trimpath -ldflags \"${PROD_LDFLAGS}\" -o bin/${APP_NAME}-prod ./cmd/rem",
-]
+cmds = ["mkdir -p bin", "go build -trimpath -ldflags \"${PROD_LDFLAGS}\" -o bin/${APP_NAME}-prod ./cmd/rem"]
 
 [task.release-assets]
 desc = "Build cross-platform release artifacts"
@@ -46,18 +41,9 @@ deps = ["production", "release-assets"]
 
 [task.release-preflight]
 desc = "Validate release preconditions"
-cmds = [
-  "gh auth status",
-  "git diff --quiet",
-  "git diff --cached --quiet",
-  "git ls-remote --exit-code --tags origin \"refs/tags/${RELEASE_VERSION}\" >/dev/null 2>&1 && { echo \"remote tag ${RELEASE_VERSION} already exists\"; exit 1; } || true",
-  "gh release view ${RELEASE_VERSION} >/dev/null 2>&1 && { echo \"release ${RELEASE_VERSION} already exists\"; exit 1; } || true",
-]
+cmds = ["gh auth status", "if [ \"${RELEASE_ALLOW_DIRTY}\" != \"1\" ]; then git diff --quiet || { echo \"working tree has unstaged tracked changes (commit/stash or use -D RELEASE_ALLOW_DIRTY=1)\"; exit 1; }; fi", "if [ \"${RELEASE_ALLOW_DIRTY}\" != \"1\" ]; then git diff --cached --quiet || { echo \"working tree has staged changes (commit/stash or use -D RELEASE_ALLOW_DIRTY=1)\"; exit 1; }; fi", "if git ls-remote --exit-code --tags origin \"refs/tags/${RELEASE_VERSION}\" >/dev/null 2>&1; then echo \"remote tag ${RELEASE_VERSION} already exists\"; exit 1; fi", "if gh release view ${RELEASE_VERSION} >/dev/null 2>&1; then echo \"release ${RELEASE_VERSION} already exists\"; exit 1; fi"]
 
 [task.github-release]
 desc = "Create GitHub release (tag + upload assets)"
 deps = ["release-preflight", "release-assets"]
-cmds = [
-  "gh auth status",
-  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes --notes \"Update (Linux): curl -fsSL https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.sh | bash ; Update (Windows): iwr https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.ps1 -UseBasicParsing | iex\"",
-]
+cmds = ["gh auth status", "printf '%s\n' '## Update' '' '### Linux' '~~~bash' 'curl -fsSL https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.sh | bash' '~~~' '' '### Windows (PowerShell)' '~~~powershell' 'iwr https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.ps1 -UseBasicParsing | iex' '~~~' > dist/release-notes.md", "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes --notes-file dist/release-notes.md"]

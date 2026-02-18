@@ -163,3 +163,49 @@ cmds = ["echo ${LDFLAGS}"]
 		t.Fatalf("expanded cmd = %q", got)
 	}
 }
+
+func TestWriteStarterKeepsExistingRemfileAndOverwritesDocs(t *testing.T) {
+	dir := t.TempDir()
+	remfilePath := filepath.Join(dir, "Remfile")
+	docENPath := filepath.Join(dir, "REM.md")
+	docSRPath := filepath.Join(dir, "REM.sr-Cyrl.md")
+
+	originalRemfile := "default = \"custom\"\n\n[task.custom]\ncmds = [\"echo custom\"]\n"
+	if err := os.WriteFile(remfilePath, []byte(originalRemfile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(docENPath, []byte("old EN doc"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(docSRPath, []byte("old SR doc"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := WriteStarter(remfilePath); err != nil {
+		t.Fatalf("WriteStarter() error: %v", err)
+	}
+
+	gotRemfile, err := os.ReadFile(remfilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(gotRemfile) != originalRemfile {
+		t.Fatalf("Remfile should be preserved, got:\n%s", string(gotRemfile))
+	}
+
+	gotEN, err := os.ReadFile(docENPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(gotEN), "# REM") {
+		t.Fatalf("REM.md was not overwritten with starter docs")
+	}
+
+	gotSR, err := os.ReadFile(docSRPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(gotSR), "# REM") {
+		t.Fatalf("REM.sr-Cyrl.md was not overwritten with starter docs")
+	}
+}

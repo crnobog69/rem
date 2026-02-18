@@ -37,18 +37,21 @@ cmds = ["go test ./..."]
 
 ## Commands
 
+Daily:
 - rem init
-- rem doctor
 - rem list -D VERSION=v0.1.0
-- rem graph -D APP_NAME=rem
 - rem build [target]
 - rem run <target>
+- rem format
+- rem format --check
+
+Optional release flow:
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
 - rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 - rem run -D RELEASE_VERSION=v1.0.0 github-release
-- rem format
-- rem format --check
+- rem doctor
+- rem graph -D APP_NAME=rem
 
 ## Notes
 
@@ -57,3 +60,4 @@ cmds = ["go test ./..."]
 - rem format writes canonical TOML and may rewrite layout/comments
 - rem doctor checks basic environment and Remfile health
 - Task shell follows $SHELL; set REM_SHELL=/path/to/shell to force shell
+- release-preflight expects clean tracked git changes; bypass with -D RELEASE_ALLOW_DIRTY=1

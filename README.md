@@ -109,21 +109,50 @@ Rules:
 - Optional `cmd` is still accepted as a single-command alias
 - `${VAR}` and `${VAR:-fallback}` expansion is supported
 
-## Commands
+## Everyday Remfile example (no GitHub release)
+
+```toml
+default = "build"
+
+[vars]
+APP_NAME = "myapp"
+VERSION = "${VERSION:-dev}"
+
+[task.build]
+desc = "Build app"
+inputs = ["cmd/myapp/main.go", "go.mod"]
+outputs = ["bin/${APP_NAME}"]
+cmds = [
+  "mkdir -p bin",
+  "go build -ldflags \"-X main.version=${VERSION}\" -o bin/${APP_NAME} ./cmd/myapp",
+]
+
+[task.test]
+desc = "Run tests"
+cmds = ["go test ./..."]
+
+[task.clean]
+desc = "Clean artifacts"
+cmds = ["rm -rf bin dist"]
+```
+
+Common daily flow:
 
 ```bash
 rem init
-rem doctor
 rem list -D VERSION=v0.1.0
+rem build
+rem run test
+rem run clean
+```
+
+## CLI commands
+
+```bash
+rem doctor
 rem graph -D APP_NAME=rem
 rem format
 rem format --check
-rem run build
-rem run -D VERSION=v1.0.0 production
-rem run -D RELEASE_VERSION=v1.0.0 release
-rem run -D RELEASE_VERSION=v1.0.0 release-preflight
-rem run -D RELEASE_VERSION=v1.0.0 github-release
-rem build
 rem build -j 8
 ```
 
@@ -165,6 +194,8 @@ go build -ldflags "-X main.version=v0.1.0 -X main.updateRepo=owner/repo" -o rem 
 
 ## Releases
 
+Optional (for projects that use GitHub release flow).
+
 Use:
 
 ```bash
@@ -175,6 +206,7 @@ rem run -D RELEASE_VERSION=v0.1.0 github-release
 
 `github-release` requires authenticated GitHub CLI (`gh auth login`).
 It also adds update commands to the release description.
+If preflight fails on local changes, either commit/stash first or run with `-D RELEASE_ALLOW_DIRTY=1`.
 
 Outputs:
 

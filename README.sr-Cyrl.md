@@ -107,21 +107,50 @@ cmds = [
 - Опционо `cmd` и даље ради као алијас за једну команду
 - Подржана је експанзија `${VAR}` и `${VAR:-fallback}`
 
-## Команде
+## Пример за свакодневни Remfile (без GitHub release-а)
+
+```toml
+default = "build"
+
+[vars]
+APP_NAME = "myapp"
+VERSION = "${VERSION:-dev}"
+
+[task.build]
+desc = "Компилација апликације"
+inputs = ["cmd/myapp/main.go", "go.mod"]
+outputs = ["bin/${APP_NAME}"]
+cmds = [
+  "mkdir -p bin",
+  "go build -ldflags \"-X main.version=${VERSION}\" -o bin/${APP_NAME} ./cmd/myapp",
+]
+
+[task.test]
+desc = "Покрени тестове"
+cmds = ["go test ./..."]
+
+[task.clean]
+desc = "Очисти артефакте"
+cmds = ["rm -rf bin dist"]
+```
+
+Уобичајени дневни ток:
 
 ```bash
 rem init
-rem doctor
 rem list -D VERSION=v0.1.0
+rem build
+rem run test
+rem run clean
+```
+
+## CLI команде
+
+```bash
+rem doctor
 rem graph -D APP_NAME=rem
 rem format
 rem format --check
-rem run build
-rem run -D VERSION=v1.0.0 production
-rem run -D RELEASE_VERSION=v1.0.0 release
-rem run -D RELEASE_VERSION=v1.0.0 release-preflight
-rem run -D RELEASE_VERSION=v1.0.0 github-release
-rem build
 rem build -j 8
 ```
 
@@ -161,6 +190,8 @@ go build -ldflags "-X main.version=v0.1.0 -X main.updateRepo=owner/repo" -o rem 
 
 ## Release
 
+Опционо (за пројекте који користе GitHub release ток).
+
 ```bash
 ./scripts/release.sh --version v0.1.0
 rem run -D RELEASE_VERSION=v0.1.0 release-preflight
@@ -169,6 +200,7 @@ rem run -D RELEASE_VERSION=v0.1.0 github-release
 
 `github-release` захтева пријављен GitHub CLI (`gh auth login`).
 Такође додаје команде за ажурирање у опис release-а.
+Ако preflight падне због локалних измена, commit/stash или покрени са `-D RELEASE_ALLOW_DIRTY=1`.
 
 Генерише:
 
