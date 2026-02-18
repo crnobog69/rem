@@ -45,6 +45,7 @@ cmds = ["go test ./..."]
 - rem run <target>
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
+- rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 - rem run -D RELEASE_VERSION=v1.0.0 github-release
 - rem format
 - rem format --check

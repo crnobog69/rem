@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -68,7 +69,16 @@ func CheckLatest(currentVersion, defaultRepo string) (string, error) {
 	if url == "" {
 		url = "https://github.com/" + repo + "/releases/latest"
 	}
-	return fmt.Sprintf("New rem version available: %s (current %s)\nUpdate: %s", latest.TagName, currentVersion, url), nil
+	ref := strings.TrimSpace(os.Getenv("REM_UPDATE_REF"))
+	if ref == "" {
+		ref = "master"
+	}
+	updateCmd := "curl -fsSL https://raw.githubusercontent.com/" + repo + "/" + ref + "/scripts/update.sh | bash"
+	if runtime.GOOS == "windows" {
+		updateCmd = "iwr https://raw.githubusercontent.com/" + repo + "/" + ref + "/scripts/update.ps1 -UseBasicParsing | iex"
+	}
+
+	return fmt.Sprintf("New rem version available: %s (current %s)\nRelease: %s\n\nUpdate command:\n  %s", latest.TagName, currentVersion, url, updateCmd), nil
 }
 
 func isNewer(latest, current string) bool {

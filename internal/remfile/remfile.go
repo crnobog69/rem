@@ -374,6 +374,8 @@ APP_NAME = "rem"
 VERSION = "dev"
 PROD_LDFLAGS = "-s -w -X main.version=${VERSION}"
 RELEASE_VERSION = "${VERSION}"
+UPDATE_REPO = "crnobog69/rem"
+UPDATE_REF = "master"
 
 [task.gen]
 desc = "Generate files"
@@ -411,12 +413,22 @@ cmds = ["./scripts/release.sh --version ${RELEASE_VERSION}"]
 desc = "Production + release artifacts"
 deps = ["production", "release-assets"]
 
-[task.github-release]
-desc = "Create GitHub release (tag + upload assets)"
-deps = ["release-assets"]
+[task.release-preflight]
+desc = "Validate release preconditions"
 cmds = [
   "gh auth status",
-  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes",
+  "git diff --quiet",
+  "git diff --cached --quiet",
+  "git ls-remote --exit-code --tags origin \"refs/tags/${RELEASE_VERSION}\" >/dev/null 2>&1 && { echo \"remote tag ${RELEASE_VERSION} already exists\"; exit 1; } || true",
+  "gh release view ${RELEASE_VERSION} >/dev/null 2>&1 && { echo \"release ${RELEASE_VERSION} already exists\"; exit 1; } || true",
+]
+
+[task.github-release]
+desc = "Create GitHub release (tag + upload assets)"
+deps = ["release-preflight", "release-assets"]
+cmds = [
+  "gh auth status",
+  "gh release create ${RELEASE_VERSION} dist/rem-linux-amd64 dist/rem-linux-arm64 dist/rem-windows-amd64.exe dist/rem-windows-arm64.exe dist/checksums.txt --title \"${RELEASE_VERSION}\" --generate-notes --notes \"Update (Linux): curl -fsSL https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.sh | bash ; Update (Windows): iwr https://raw.githubusercontent.com/${UPDATE_REPO}/${UPDATE_REF}/scripts/update.ps1 -UseBasicParsing | iex\"",
 ]
 `
 
@@ -467,6 +479,7 @@ cmds = ["go test ./..."]
 - rem run <target>
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
+- rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 - rem run -D RELEASE_VERSION=v1.0.0 github-release
 - rem format
 - rem format --check
@@ -527,6 +540,7 @@ cmds = ["go test ./..."]
 - rem run <target>
 - rem run -D VERSION=v1.0.0 production
 - rem run -D RELEASE_VERSION=v1.0.0 release
+- rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 - rem run -D RELEASE_VERSION=v1.0.0 github-release
 - rem format
 - rem format --check

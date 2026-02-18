@@ -54,6 +54,26 @@ go build -o rem ./cmd/rem
 ./rem version
 ```
 
+## Update rem
+
+Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/master/scripts/update.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+iwr https://raw.githubusercontent.com/crnobog69/rem/master/scripts/update.ps1 -UseBasicParsing | iex
+```
+
+Optional branch/ref override:
+
+```bash
+REM_UPDATE_REF=master curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/master/scripts/update.sh | bash
+```
+
 ## Remfile syntax (TOML)
 
 `Remfile` uses TOML sections:
@@ -101,6 +121,7 @@ rem format --check
 rem run build
 rem run -D VERSION=v1.0.0 production
 rem run -D RELEASE_VERSION=v1.0.0 release
+rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 rem run -D RELEASE_VERSION=v1.0.0 github-release
 rem build
 rem build -j 8
@@ -135,6 +156,7 @@ Your provided `Makefile` translation is included at:
 - disabled with `REM_NO_UPDATE_CHECK=1`
 - default repo is `crnobog69/rem`
 - override repo with `REM_UPDATE_REPO=owner/repo`
+- override raw script ref with `REM_UPDATE_REF=master`
 - or compile-time value via:
 
 ```bash
@@ -147,10 +169,12 @@ Use:
 
 ```bash
 ./scripts/release.sh --version v0.1.0
+rem run -D RELEASE_VERSION=v0.1.0 release-preflight
 rem run -D RELEASE_VERSION=v0.1.0 github-release
 ```
 
 `github-release` requires authenticated GitHub CLI (`gh auth login`).
+It also adds update commands to the release description.
 
 Outputs:
 

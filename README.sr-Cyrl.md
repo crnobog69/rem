@@ -54,6 +54,26 @@ go build -o rem ./cmd/rem
 ./rem version
 ```
 
+## Ажурирање rem-а
+
+Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/master/scripts/update.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+iwr https://raw.githubusercontent.com/crnobog69/rem/master/scripts/update.ps1 -UseBasicParsing | iex
+```
+
+Опциони override branch/ref:
+
+```bash
+REM_UPDATE_REF=master curl -fsSL https://raw.githubusercontent.com/crnobog69/rem/master/scripts/update.sh | bash
+```
+
 ## `Remfile` синтакса (TOML)
 
 ```text
@@ -99,6 +119,7 @@ rem format --check
 rem run build
 rem run -D VERSION=v1.0.0 production
 rem run -D RELEASE_VERSION=v1.0.0 release
+rem run -D RELEASE_VERSION=v1.0.0 release-preflight
 rem run -D RELEASE_VERSION=v1.0.0 github-release
 rem build
 rem build -j 8
@@ -131,6 +152,7 @@ Task shell прати `$SHELL`; постави `REM_SHELL=/path/to/shell` ако
 - Искључивање: `REM_NO_UPDATE_CHECK=1`
 - Подразумевани репо: `crnobog69/rem`
 - Override преко env: `REM_UPDATE_REPO=owner/repo`
+- Override raw script ref: `REM_UPDATE_REF=master`
 - Или compile-time:
 
 ```bash
@@ -141,10 +163,12 @@ go build -ldflags "-X main.version=v0.1.0 -X main.updateRepo=owner/repo" -o rem 
 
 ```bash
 ./scripts/release.sh --version v0.1.0
+rem run -D RELEASE_VERSION=v0.1.0 release-preflight
 rem run -D RELEASE_VERSION=v0.1.0 github-release
 ```
 
 `github-release` захтева пријављен GitHub CLI (`gh auth login`).
+Такође додаје команде за ажурирање у опис release-а.
 
 Генерише:
 
